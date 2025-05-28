@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'data_model.dart';
+import 'provider/appData_provider.dart';
 import 'screens/home.dart';
 import 'screens/liste_view.dart';
 import 'screens/categorie.dart';
@@ -9,7 +9,7 @@ import 'screens/analisi.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (_) => SharedData(),
+      create: (_) => AppDataProvider()..loadAllData(),
       child: const MyApp(),
     ),
   );

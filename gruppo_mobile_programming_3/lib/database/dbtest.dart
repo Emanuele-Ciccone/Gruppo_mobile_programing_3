@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
-import 'lista.dart';
+import '../model/lista_model.dart';
+import '../model/oggetto_model.dart';
+import '../model/categoria_model.dart';
+import '../model/oggettoCategoria_model.dart';
+import '../model/listaOggetto_model.dart';
+
 
 void main() {
   runApp(const MyApp());
