@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../model/categoria_model.dart';
-
+import '../provider/appData_provider.dart';
 class AnalisiPage extends StatelessWidget {
   const AnalisiPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final data = Provider.of<SharedData>(context);
-    final items = data.shoppingLists;
+    final data = Provider.of<AppDataProvider>(context);;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Analisi')),
@@ -16,11 +14,11 @@ class AnalisiPage extends StatelessWidget {
         children: [
           ListTile(
             title: const Text('Numero di liste'),
-            trailing: Text('${items.length}'),
+            trailing: Text('${data.liste.length}'),
           ),
           ListTile(
             title: const Text('Liste'),
-            subtitle: Text(items.isEmpty ? 'Nessuna lista' : items.join(', ')),
+            subtitle: Text(data.liste.isEmpty ? 'Nessuna lista' : data.liste.join(', ')),
           ),
         ],
       ),

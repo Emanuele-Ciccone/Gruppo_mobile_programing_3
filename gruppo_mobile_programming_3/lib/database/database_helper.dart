@@ -5,6 +5,9 @@ import '../model/oggetto_model.dart';
 import '../model/categoria_model.dart';
 import '../model/oggettoCategoria_model.dart';
 import '../model/listaOggetto_model.dart';
+
+
+
 class DatabaseHelper {
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -33,7 +36,7 @@ class DatabaseHelper {
           '''CREATE TABLE Oggetto (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Nome TEXT NOT NULL,
-            Prezzo DOUBLE,
+            Prezzo REAL,
             Categoria TEXT,
             UNIQUE(Nome)
           )'''
@@ -51,12 +54,12 @@ class DatabaseHelper {
 
         await db.execute(
           '''CREATE TABLE ListaOggetto (
-            ListaId INTEGER,
+            ListaId TEXT,
             OggettoId INTEGER,
             Quantita INTEGER NOT NULL,
             Data DATETIME NOT NULL,
             PRIMARY KEY (ListaId, OggettoId),
-            FOREIGN KEY (ListaId) REFERENCES Lista(Id) ON DELETE CASCADE,
+            FOREIGN KEY (ListaId) REFERENCES Lista(nome) ON DELETE CASCADE,
             FOREIGN KEY (OggettoId) REFERENCES Oggetto(Id) ON DELETE CASCADE
           )'''
         );
@@ -65,12 +68,126 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> insertLista(Lista lista) async {
+  
+
+  Future<List<Lista>> getAllListe() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('Lista');
+    return maps.map((map) => Lista.fromMap(map)).toList();
+  }
+
+  Future<List<Oggetto>> getAllOggetti() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('Oggetto');
+    return maps.map((map) => Oggetto.fromMap(map)).toList();
+  }
+
+  Future<List<Categoria>> getAllCategorie() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('Categoria');
+    return maps.map((map) => Categoria.fromMap(map)).toList();
+  }
+
+  Future<List<OggettoCategoria>> getAllOggettoCategorie() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('OggettoCategoria');
+    return maps.map((map) => OggettoCategoria.fromMap(map)).toList();
+  }
+
+  Future<List<ListaOggetto>> getAllOggettoListe() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('ListaOggetto');
+    return maps.map((map) => ListaOggetto.fromMap(map)).toList();
+  }
+
+  Future<void> insertLista(String nomeLista) async {
+    var lista= Lista(nome: nomeLista);
     final db = await database;
     await db.insert(
-      'lista',
+      'Lista',
       lista.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteLista(String nome) async {
+    final db = await database;
+    await db.delete(
+      'Lista',
+      where: 'Nome = ?',
+      whereArgs: [nome],
+    );
+  }
+
+  Future<void> insertOggetto(Oggetto oggetto) async {
+    final db = await database;
+    await db.insert(
+      'Oggetto',
+      oggetto.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteOggetto(String nome) async {
+    final db = await database;
+    await db.delete(
+      'Oggetto',
+      where: 'Nome = ?',
+      whereArgs: [nome],
+    );
+  }
+
+  Future<void> insertCategoria(Categoria categoria)async  {
+    final db = await database;
+    await db.insert(
+      'Categoria',
+      categoria.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteCategoria(String nome) async {
+    final db = await database;
+    await db.delete(
+      'Categoria',
+      where: 'Nome = ?',
+      whereArgs: [nome],
+    );
+  }
+
+  Future<void> insertOggettoCategoria(OggettoCategoria oc) async {
+    final db = await database;
+    await db.insert(
+      'OggettoCategoria',
+      oc.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteOggettoCategoria(OggettoCategoria oc) async {
+    final db = await database;
+    await db.delete(
+      'OggettoCategoria',
+      where: 'OggettoId = ? and CategoriaId = ?',
+      whereArgs: [oc.oggettoId, oc.categoriaId],
+    );
+  }
+
+  Future<void> insertListaOggetto(ListaOggetto ol) async {
+    final db = await database;
+    await db.insert(
+      'ListaOggetto',
+      ol.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteListaOggetto(ListaOggetto ol) async {
+    final db = await database;
+    await db.delete(
+      'ListaOggetto',
+      where: 'ListaId = ? and OggettoId = ?',
+      whereArgs: [ol.listaId,ol.oggettoId],
     );
   }
 }

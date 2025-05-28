@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../model/categoria_model.dart';
+import '../provider/appData_provider.dart';
 
 class ListaPage extends StatelessWidget {
   const ListaPage({super.key});
@@ -24,7 +24,7 @@ class ListaPage extends StatelessWidget {
               onPressed: () {
                 final name = controller.text.trim();
                 if (name.isNotEmpty) {
-                  Provider.of<SharedData>(context, listen: false).addList(name);
+                  Provider.of<AppDataProvider>(context, listen: false).aggiungiLista(name);
                   controller.clear();
                 }
               },

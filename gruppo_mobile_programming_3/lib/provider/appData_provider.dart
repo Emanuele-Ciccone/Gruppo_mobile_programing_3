@@ -31,8 +31,8 @@ class AppDataProvider extends ChangeNotifier {
   }
 
   // LISTA
-  Future<void> aggiungiLista(Lista lista) async {
-    await _db.insertLista(lista);
+  Future<void> aggiungiLista(String nome) async {
+    await _db.insertLista(nome);
     await loadAllData();
   }
 

@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../model/categoria_model.dart';
+import '../provider/appData_provider.dart';
+
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var data = Provider.of<SharedData>(context);
+    var data = Provider.of<AppDataProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Homepage')),
       body: ListView.builder(
-        itemCount: data.shoppingLists.length,
+        itemCount: data.liste.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(data.shoppingLists[index]),
+            title: Text(data.liste[index].nome),
           );
         },
       ),
