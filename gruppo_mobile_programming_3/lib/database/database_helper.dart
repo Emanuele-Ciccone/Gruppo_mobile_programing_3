@@ -190,4 +190,28 @@ class DatabaseHelper {
       whereArgs: [ol.listaId,ol.oggettoId],
     );
   }
+
+  Future<int> getListaOggettiCount(String nomeLista) async {
+  final db = await database;
+  final result = await db.rawQuery(
+    'SELECT COUNT(*) as count FROM ListaOggetto WHERE ListaId = ?', [nomeLista]
+  );
+  return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<List<ListaOggetto>> getListaOggettoByListaId(String listaId) async {
+  final db = await database;
+  final result = await db.query(
+    'ListaOggetto',
+    where: 'ListaId = ?',
+    whereArgs: [listaId],
+  );
+
+  // Mappiamo i risultati in ListaOggetto
+  return result.map((json) => ListaOggetto.fromMap(json)).toList();
+}
+
+
+
+
 }

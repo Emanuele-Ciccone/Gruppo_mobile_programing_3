@@ -6,7 +6,7 @@ class AnalisiPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = Provider.of<AppDataProvider>(context);;
+    final data = Provider.of<AppDataProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Analisi')),
