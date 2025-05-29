@@ -18,37 +18,6 @@ class AnalisiStatePage extends State<AnalisiPage> {
   Widget build(BuildContext context) {
     final data = Provider.of<AppDataProvider>(context);
 
-    double SpesaTotale = 0.0;
-    double MediaSettimanale = 0.0;
-    List<Map<String, dynamic>> categorie = [];
-    final List<ChartData> chartData = categorie.map((cat) {
-    return ChartData(cat['Nome'] as String, cat['Frequenza'] as int);
-    }).toList();
-
-
-
-    Future<void> AggiornaSpesaMensile() async {
-      double spesa = await data.getSpesaTotale();
-      setState(() {
-        SpesaTotale = spesa;
-      });
-    }
-
-    Future<void> AggiornaMediaSettimanale() async {
-      double media = await data.getMediaSettimanale();
-      setState(() {
-        MediaSettimanale = media;
-      });
-    }
-
-    Future<void> AggiornaCategorie() async {
-    var result = await data.getCategorie();
-    setState(() {
-      categorie = result;
-    });
-  }
-
-
     return Scaffold(
       appBar: AppBar(title: const Text('Analisi')),
       body: Center(

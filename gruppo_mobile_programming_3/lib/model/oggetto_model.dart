@@ -8,7 +8,7 @@ class Oggetto {
   factory Oggetto.fromMap(Map<String, dynamic> map) => Oggetto(
     id: map['Id'],
     nome: map['Nome'],
-    prezzo: map['Prezzo'] != null ? map['Prezzo'].toDouble() : null,
+    prezzo: map['Prezzo']?.toDouble(),
   );
 
   Map<String, dynamic> toMap() => {

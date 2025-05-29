@@ -191,6 +191,43 @@ class DatabaseHelper {
     );
   }
 
+  Future<int> getListaOggettiCount(String nomeLista) async {
+  final db = await database;
+  final result = await db.rawQuery(
+    'SELECT COUNT(*) as count FROM ListaOggetto WHERE ListaId = ?', [nomeLista]
+  );
+  return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  Future<List<ListaOggetto>> getListaOggettoByListaId(String listaId) async {
+  final db = await database;
+  final result = await db.query(
+    'ListaOggetto',
+    where: 'ListaId = ?',
+    whereArgs: [listaId],
+  );
+
+  // Mappiamo i risultati in ListaOggetto
+  return result.map((json) => ListaOggetto.fromMap(json)).toList();
+}
+
+
+
+
+
+  Future<List<Oggetto>> getOggettiByCategoria(int categoriaId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT Oggetto.*
+      FROM OggettoCategoria
+      INNER JOIN Oggetto ON Oggetto.Id = OggettoCategoria.OggettoId
+      WHERE OggettoCategoria.CategoriaId = ?
+    ''', [categoriaId]);
+    return maps.map((map) => Oggetto.fromMap(map)).toList();
+  }
+
+  
+
   Future<double> getSpesaTotale() async {
   final db = await database;
   var result = await db.rawQuery(
