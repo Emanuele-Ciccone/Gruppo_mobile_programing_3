@@ -190,4 +190,42 @@ class DatabaseHelper {
       whereArgs: [ol.listaId,ol.oggettoId],
     );
   }
+
+  Future<double> getSpesaTotale() async {
+  final db = await database;
+  var result = await db.rawQuery(
+    '''SELECT SUM(Oggetto.Prezzo * ListaOggetto.Quantita) AS SpesaTotale
+       FROM ListaOggetto
+       JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
+       WHERE strftime('%Y-%m', ListaOggetto.Data) = strftime('%Y-%m', 'now');'''
+  );
+
+  return result.isNotEmpty ? result.first['SpesaTotale'] as double : 0.0;
+}
+
+Future<double> getMediaSettimanale() async {
+  final db = await database;
+  var result = await db.rawQuery(
+    '''SELECT avg(Oggetto.prezzo * ListaOggetto.Quantita) AS MediaSettimanale
+       FROM ListaOggetto
+       JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
+      WHERE ListaOggetto.Data >= date('now', '-7 days');'''
+  );
+
+  return result.isNotEmpty ? result.first['MediaSettimanale'] as double : 0.0;
+}
+
+Future<List<Map<String, dynamic>>> getCategorie() async {
+  final db = await database;
+  var result = await db.rawQuery(
+    '''SELECT C.Nome, COUNT(OC.CategoriaId) AS Frequenza
+       FROM Categoria C
+       JOIN OggettoCategoria OC ON OC.CategoriaId = C.Id
+       GROUP BY C.Nome
+       ORDER BY Frequenza DESC
+       LIMIT 5;'''
+  );
+  return result;
+}
+
 }

@@ -84,4 +84,16 @@ class AppDataProvider extends ChangeNotifier {
     await _db.deleteListaOggetto(ol);
     await loadAllData();
   }
+
+  Future<double> getSpesaTotale() async {
+   return await _db.getSpesaTotale();
+  }
+
+  Future<double> getMediaSettimanale() async {
+   return await _db.getMediaSettimanale();
+  }
+
+  Future<List<Map<String, dynamic>>> getCategorie() async {
+    return await _db.getCategorie();
+  }
 }
