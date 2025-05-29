@@ -190,17 +190,4 @@ class DatabaseHelper {
       whereArgs: [ol.listaId,ol.oggettoId],
     );
   }
-
-  Future<List<Oggetto>> getOggettiByCategoria(int categoriaId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT Oggetto.*
-      FROM OggettoCategoria
-      INNER JOIN Oggetto ON Oggetto.Id = OggettoCategoria.OggettoId
-      WHERE OggettoCategoria.CategoriaId = ?
-    ''', [categoriaId]);
-    return maps.map((map) => Oggetto.fromMap(map)).toList();
-  }
-
-  
 }

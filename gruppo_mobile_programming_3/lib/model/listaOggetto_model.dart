@@ -1,5 +1,5 @@
 class ListaOggetto {
-  final int listaId;
+  final String listaId;
   final int oggettoId;
   final int quantita;
   final DateTime data;
