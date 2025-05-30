@@ -215,14 +215,15 @@ class DatabaseHelper {
 
 
 
-  Future<List<Oggetto>> getOggettiByCategoria(int categoriaId) async {
+  Future<List<Oggetto>> getOggettiByCategoria(String categoriaNome) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
       SELECT Oggetto.*
-      FROM OggettoCategoria
+      FROM Categoria
+      INNER JOIN OggettoCategoria on Categoria.ID=OggettoCategoria.CategoriaId
       INNER JOIN Oggetto ON Oggetto.Id = OggettoCategoria.OggettoId
-      WHERE OggettoCategoria.CategoriaId = ?
-    ''', [categoriaId]);
+      WHERE Categoria.nome = ?
+    ''', [categoriaNome]);
     return maps.map((map) => Oggetto.fromMap(map)).toList();
   }
 

@@ -94,8 +94,8 @@ class AppDataProvider extends ChangeNotifier {
   return await _db.getListaOggettoByListaId(nomeLista);
   }
 
-  Future<List<Oggetto>> getOggettiByCategoria(int categoriaId) async {
-   return await _db.getOggettiByCategoria(categoriaId);
+  Future<List<Oggetto>> getOggettiByCategoria(String categoriaNome) async {
+   return await _db.getOggettiByCategoria(categoriaNome);
   }
 
   Future<double> getSpesaTotale() async {

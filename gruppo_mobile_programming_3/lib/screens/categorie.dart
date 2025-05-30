@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../model/categoria_model.dart';
-import '../database/database_helper.dart';
+import '../model/oggetto_model.dart';
 import 'package:provider/provider.dart';
 import '../provider/appData_provider.dart';
 
@@ -79,7 +79,6 @@ class _CategoriaPageState extends State<CategoriaPage> {
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              // Existing chips with selection
                               Wrap(
                                 spacing: 8.0,
                                 runSpacing: 4.0,
@@ -129,34 +128,87 @@ class _CategoriaPageState extends State<CategoriaPage> {
           ),
           // Main content that moves down when chips appear
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Contenuto della pagina',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    'Questo contenuto si sposta verso il basso quando appaiono le categorie. '
-                    'La linea con le categorie scende animata e influenza il layout del resto della pagina.',
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Contenuto aggiuntivo per testare lo scroll...',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  SizedBox(height: 400),
-                  Text(
-                    'Fine del contenuto',
-                    style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-                  ),
-                ],
+  child: SingleChildScrollView(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Align(
+        alignment: Alignment.topLeft, // <--- This ensures top-left alignment
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (selectedChips.isEmpty) ...[
+              Text(
+                'Nessuna categoria selezionata',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-            ),
-          ),
+              SizedBox(height: 12),
+              Text(
+                'Seleziona una o più categorie per visualizzare il contenuto specifico. '
+                'Usa il pulsante in basso a destra per aprire il menu delle categorie.',
+              ),
+            ] else ...[
+              Text(
+                'Categorie selezionate: ${selectedChips.length}',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 12),
+              ...selectedChips.map((categoriaNome) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          categoriaNome,
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            selectedChips.remove(categoriaNome);
+                            data.rimuoviCategoria(categoriaNome);
+                          }
+                        )
+                        ]
+                    ),
+                    FutureBuilder<List<Oggetto>>(
+                      future: data.getOggettiByCategoria(categoriaNome),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return Text(
+                            'Nessun oggetto',
+                            style: TextStyle(color: Colors.grey),
+                          );
+                        } else {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: snapshot.data!.map((oggetto) {
+                              final nome = oggetto.nome;
+                              final prezzo = oggetto.prezzo;
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: ListTile(
+                                  title: Text(nome),
+                                  subtitle: Text('Prezzo: €${(prezzo!).toStringAsFixed(2)}'),
+                                ),
+                              );
+                            }).toList(), 
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                );
+              }),
+            ],
+          ],
+        ),
+      ),
+    ),
+  ),
+)
+
         ],
       ),
       floatingActionButton: FloatingActionButton(
