@@ -27,12 +27,6 @@ class AnalisiStatePage extends State<AnalisiPage> {
 
 
 
-    Future<void> AggiornaSpesaMensile() async {
-      double spesa = await data.getSpesaTotale();
-      setState(() {
-        SpesaTotale = spesa;
-      });
-    }
 
     Future<void> AggiornaMediaSettimanale() async {
       double media = await data.getMediaSettimanale();

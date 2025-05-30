@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'oggetti_page.dart';
-import '../model/lista_model.dart'; // importa la classe Lista
 import '../provider/appData_provider.dart'; // importa il provider corretto
+import 'lista_oggetti.dart'; // importa la schermata per aggiungere una nuova lista
 
 class ListaPage extends StatefulWidget {
   const ListaPage({super.key});
@@ -45,7 +45,20 @@ class _ListaPageState extends State<ListaPage> {
         ),
         centerTitle: true,
         title: const Text('Liste della Spesa'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: 'Nuova schermata',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Lista_Oggetti()),
+              );
+            },
+          ),
+        ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

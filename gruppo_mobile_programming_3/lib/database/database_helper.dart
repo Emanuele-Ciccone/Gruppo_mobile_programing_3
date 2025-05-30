@@ -289,4 +289,17 @@ Future<List<Map<String, dynamic>>> getCategorie() async {
     whereArgs: [lo.oggettoId, lo.listaId],
   );
   }
+
+  Future<void> updateOggetto(Oggetto oggetto, String nome, double prezzo) async {
+  final db = await database;
+  await db.update(
+    'Oggetto',
+    {
+      'nome': nome,
+      'prezzo': prezzo,
+    },
+    where: 'id = ?',
+    whereArgs: [oggetto.id],
+  );
+  }
 }

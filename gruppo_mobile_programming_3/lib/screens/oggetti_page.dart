@@ -70,7 +70,7 @@ class _OggettiPageState extends State<OggettiPage> {
 
                       final relazione = ListaOggetto(
                         listaId: widget.lista.nome,
-                        oggettoId: nuovoOggetto.id!,
+                        oggettoId: nuovoOggetto.id,
                         quantita: 1,
                         data: DateTime.now(),
                       );
