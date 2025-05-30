@@ -64,13 +64,8 @@ class AnalisiStatePage extends State<AnalisiPage> {
                   borderRadius: BorderRadius.circular(20.0),
                   border: Border.all(color: Colors.lightBlueAccent, width: 4.0),
                   ),
-<<<<<<< HEAD
-                padding: EdgeInsets.all(10.0),
-                margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
-=======
                 padding: EdgeInsets.all(20.0),
                 //margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
->>>>>>> 3f8f38a (manu)
                   child: Text( 'Spese totali \n  mensili\n €${SpesaTotale.toStringAsFixed(2)}',
                   textAlign: TextAlign.center,
                     style: TextStyle(
@@ -87,13 +82,8 @@ class AnalisiStatePage extends State<AnalisiPage> {
                   borderRadius: BorderRadius.circular(20.0),
                   border: Border.all(color: Colors.lightBlueAccent, width: 4.0),
                   ),
-<<<<<<< HEAD
-                padding: EdgeInsets.all(10.0),
-                margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
-=======
                 padding: EdgeInsets.all(20.0),
                 //margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
->>>>>>> 3f8f38a (manu)
                   child: Text( 'Media settimanale \n  €${MediaSettimanale.toStringAsFixed(2)}',
                   textAlign: TextAlign.center,
                     style: TextStyle(
