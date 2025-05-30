@@ -90,6 +90,8 @@ class _CategoriaPageState extends State<CategoriaPage> {
                                       setState(() {
                                         if (!isSelected) {
                                           selectedChips.add(categoria.nome);
+                                        }else if(isSelected){
+                                          selectedChips.remove(categoria.nome);
                                         }
                                       });
                                     },
@@ -102,31 +104,6 @@ class _CategoriaPageState extends State<CategoriaPage> {
                                               ? const BorderSide(color: Colors.green, width: 2)
                                               : null,
                                         ),
-                                        if (isSelected)
-                                          Positioned(
-                                            top: -8,
-                                            right: -8,
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  selectedChips.remove(categoria.nome);
-                                                });
-                                              },
-                                              child: Container(
-                                                width: 20,
-                                                height: 20,
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.red,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: const Icon(
-                                                  Icons.close,
-                                                  size: 14,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
                                       ],
                                     ),
                                   );
