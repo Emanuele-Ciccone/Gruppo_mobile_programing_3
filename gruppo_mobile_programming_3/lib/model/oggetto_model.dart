@@ -1,19 +1,22 @@
 class Oggetto {
-  final int? id;
+  static int _counter = 0;
+
+  final int id;
   final String nome;
   final double? prezzo;
 
-  Oggetto({this.id, required this.nome, this.prezzo});
+  Oggetto({int? id, required this.nome, required this.prezzo})
+      : id = id ?? _counter++;
 
   factory Oggetto.fromMap(Map<String, dynamic> map) => Oggetto(
-    id: map['Id'],
-    nome: map['Nome'],
-    prezzo: map['Prezzo']?.toDouble(),
-  );
+        id: map['Id'],
+        nome: map['Nome'],
+        prezzo: map['Prezzo']?.toDouble(),
+      );
 
   Map<String, dynamic> toMap() => {
-    if (id != null) 'Id': id,
-    'Nome': nome,
-    'Prezzo': prezzo,
-  };
+        'Id': id,
+        'Nome': nome,
+        'Prezzo': prezzo,
+      };
 }

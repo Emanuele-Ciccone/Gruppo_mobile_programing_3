@@ -109,4 +109,12 @@ class AppDataProvider extends ChangeNotifier {
   Future<List<Map<String, dynamic>>> getCategorie() async {
     return await _db.getCategorie();
   }
+
+  Future<Oggetto> getOggetto(int oggettoId) async{
+    return await _db.getOggetto(oggettoId);
+  }
+
+  Future<void> aggiornaQuantitaOggetto(ListaOggetto lo, int i) {
+  return _db.aggiornaQuantitaOggetto(lo, i);
+  }
 }
