@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'oggetti_page.dart';
-
-class Lista {
-  String nome;
-  Lista({required this.nome});
-}
+import '../model/lista_model.dart'; // importa la classe Lista
+import '../provider/appData_provider.dart'; // importa il provider corretto
 
 class ListaPage extends StatefulWidget {
   const ListaPage({super.key});
@@ -18,10 +16,19 @@ class _ListaPageState extends State<ListaPage> {
   final TextEditingController searchController = TextEditingController();
   String _searchText = '';
   bool _showSearch = false;
-  List<Lista> liste = [];
 
   @override
   Widget build(BuildContext context) {
+    final data = Provider.of<AppDataProvider>(context); // ottieni il provider
+
+    // Filtra le liste in base al testo di ricerca
+    final filteredListe = data.liste
+    .where((l) => l.nome.toLowerCase().contains(_searchText))
+    .toList()
+    .reversed
+    .toList(); // ← QUESTO è ciò che cambia l’ordine
+
+  
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -64,24 +71,20 @@ class _ListaPageState extends State<ListaPage> {
             TextField(
               controller: controller,
               decoration: const InputDecoration(labelText: 'Nome nuova lista'),
-              onSubmitted: (value) {
+              onSubmitted: (value) async {
                 final name = value.trim();
                 if (name.isNotEmpty) {
-                  setState(() {
-                    liste.add(Lista(nome: name));
-                  });
+                  await data.aggiungiLista(name);
                   controller.clear();
                 }
               },
             ),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final name = controller.text.trim();
                 if (name.isNotEmpty) {
-                  setState(() {
-                    liste.add(Lista(nome: name));
-                  });
+                  await data.aggiungiLista(name);
                   controller.clear();
                 }
               },
@@ -89,52 +92,51 @@ class _ListaPageState extends State<ListaPage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: liste.where((l) => l.nome.toLowerCase().contains(_searchText)).length,
-                itemBuilder: (context, index) {
-                  final filtered = liste.where((l) => l.nome.toLowerCase().contains(_searchText)).toList();
-                  final lista = filtered[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: ListTile(
-                      title: Text(lista.nome),
-                      trailing: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              blurRadius: 2,
-                              offset: const Offset(0, 1),
+              child: filteredListe.isEmpty
+                  ? const Center(child: Text("Nessuna lista trovata"))
+                  : ListView.builder(
+                      itemCount: filteredListe.length,
+                      itemBuilder: (context, index) {
+                        final lista = filteredListe[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          child: ListTile(
+                            title: Text(lista.nome),
+                            trailing: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    blurRadius: 2,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.black, size: 20),
+                                padding: EdgeInsets.zero,
+                                onPressed: () async {
+                                  await data.rimuoviLista(lista.nome);
+                                },
+                                tooltip: 'Elimina',
+                              ),
                             ),
-                          ],
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.black, size: 20),
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            setState(() {
-                              liste.remove(lista);
-                            });
-                          },
-                          tooltip: 'Elimina',
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OggettiPage(lista: lista),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => OggettiPage(lista: lista),
+                                ),
+                              );
+                            },
                           ),
                         );
                       },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),

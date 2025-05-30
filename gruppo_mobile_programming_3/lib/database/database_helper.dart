@@ -265,4 +265,27 @@ Future<List<Map<String, dynamic>>> getCategorie() async {
   return result;
 }
 
+  Future<Oggetto> getOggetto(int oggettoId) async {
+    final db = await database;
+    final result = await db.query(
+    'Oggetto',
+    where: 'id = ?',
+    whereArgs: [oggettoId],
+  );
+  return result.isNotEmpty
+      ? Oggetto.fromMap(result.first)
+      : throw Exception('Oggetto non trovato');
+  }
+
+  Future<void> aggiornaQuantitaOggetto(ListaOggetto lo, int nuovaQuantita) async {
+  final db = await database;
+  await db.update(
+    'ListaOggetto',
+    {
+      'quantita': nuovaQuantita,
+    },
+    where: 'oggettoId = ? and listaId = ?',
+    whereArgs: [lo.oggettoId, lo.listaId],
+  );
+  }
 }
