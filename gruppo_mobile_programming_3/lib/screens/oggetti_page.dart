@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../model/oggetto_model.dart';
 import '../model/listaOggetto_model.dart';
 import '../model/lista_model.dart';
+import 'oggetto_categorie.dart';
 
 class OggettiPage extends StatefulWidget {
   final Lista lista;
@@ -151,6 +152,14 @@ class _OggettiPageState extends State<OggettiPage> {
                                   ),
                                 ],
                               ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => OggettoCategoriePage(oggetto: oggetto),
+                                  ),
+                                );
+                              },
                             ),
                           );
                         },
