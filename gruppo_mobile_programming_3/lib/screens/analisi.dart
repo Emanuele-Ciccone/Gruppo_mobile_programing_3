@@ -23,6 +23,10 @@ class AnalisiStatePage extends State<AnalisiPage> {
   double MediaSettimanale = 0.0;
     List<Map<String, dynamic>> categorie = [];
     List<ChartData> chartData =[];
+    List<Map<String, dynamic>> settimane = [];
+    List<SettimanaSpesa> setspesa = [];
+    List<Map<String, dynamic>> ogg = [];
+    List<OggettiFrequenti> oggfreq = [];
 
   Oggetto banana = new Oggetto(id: 2,nome : 'banana',prezzo: 3.0);
   Oggetto fragola = new Oggetto(id: 3,nome : 'fragola',prezzo: 4.0);
@@ -37,7 +41,7 @@ class AnalisiStatePage extends State<AnalisiPage> {
   OggettoCategoria oc2 = new OggettoCategoria(oggettoId: 3, categoriaId: 1);
   OggettoCategoria oc3 = new OggettoCategoria(oggettoId: 4, categoriaId: 2);
   
-  Future<void> AggiornaSpesaMensile() async {
+  Future<void> aggiornaSpesaMensile() async {
       double spesa = await data.getSpesaTotale();
       setState(() {
         SpesaTotale = spesa;
@@ -60,6 +64,27 @@ class AnalisiStatePage extends State<AnalisiPage> {
     }).toList();
     });
   }
+
+  Future<void> aggiornaSettimane() async {
+    var result = await data.getSpesa();
+    setState(() {
+      settimane = result;
+      setspesa = settimane.map((cat) {
+    return SettimanaSpesa(cat['Settimana'] as String, cat['SpesaPrezzo'] as double);
+    }).toList();
+    });
+  }
+
+  Future<void> aggiornaOggettiFrequenti() async {
+    var result = await data.getOggFreq();
+    setState(() {
+      ogg = result;
+      oggfreq = ogg.map((cat) {
+    return OggettiFrequenti(cat['Nome'] as String, cat['Frequenza'] as int);
+    }).toList();
+    });
+  }
+  
   
   @override
   void initState(){
@@ -81,19 +106,23 @@ class AnalisiStatePage extends State<AnalisiPage> {
     data.assegnaCategoriaAOggetto(oc2);
     data.assegnaCategoriaAOggetto(oc3);
 
-    AggiornaSpesaMensile();
+    aggiornaSpesaMensile();
     aggiornaMediaSettimanale();
     aggiornaCategorie();
+    aggiornaSettimane();
+    aggiornaOggettiFrequenti();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-     final data = Provider.of<AppDataProvider>(context, listen: true);
+     //final data = Provider.of<AppDataProvider>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Analisi')),
       body: Center(
+      child :SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Column(
           //mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -148,14 +177,15 @@ class AnalisiStatePage extends State<AnalisiPage> {
               ]
             ),
             ),
+            SizedBox(height: 8),
             Container(
               child  :SfCircularChart(
                 title: ChartTitle(text: 
                 'Top 5 Categorie Usate',
                 textStyle: TextStyle(
-                color: Colors.black, // Colore del testo
-                fontSize: 16, // Dimensione del font
-                fontWeight: FontWeight.bold, // Testo in grassetto // Font personalizzato
+                color: Colors.black, 
+                fontSize: 16, 
+                fontWeight: FontWeight.bold, 
                   ),
                 ),
                 legend: Legend(isVisible: true),
@@ -165,14 +195,65 @@ class AnalisiStatePage extends State<AnalisiPage> {
                     xValueMapper: (ChartData data, _) => data.x,
                     yValueMapper: (ChartData data, _) => data.y,
                     dataLabelSettings: DataLabelSettings(isVisible: true),
-                    explode: true, // Attiva l'effetto "explode"
-                    explodeGesture: ActivationMode.singleTap, // Esplode quando viene toccato
+                    explode: true, 
+                    explodeGesture: ActivationMode.singleTap,
                   )
                 ]
               )
             ),
+            SizedBox(height: 8),
+            Text('Spese settimanali',
+            style: TextStyle(color: Colors.black, 
+                fontSize: 16, 
+                fontWeight: FontWeight.bold, 
+            )),
+            SizedBox(height: 8),
+            SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child : Container(
+              width: MediaQuery.of(context).size.width * 2,
+              child: SfCartesianChart(
+                primaryXAxis: CategoryAxis(
+                  title: AxisTitle(text: 'Settimane'),
+                ),
+                primaryYAxis: NumericAxis(
+                  //interval:100,
+
+                title: AxisTitle(text: 'Soldi spesi'),
+                ),
+        series: <CartesianSeries>[
+          LineSeries<SettimanaSpesa, String>(
+            dataSource: setspesa,
+            xValueMapper: (SettimanaSpesa val, _) => val.x,
+            yValueMapper: (SettimanaSpesa val, _) => val.y,
+            )
+          ],
+          ),
+          ),
+          ),
+          SizedBox(height: 8),
+          Container(
+              child: SfPyramidChart(
+                title: ChartTitle(text: 
+                '3 oggetti più comprati',
+                textStyle: TextStyle(
+                color: Colors.black, 
+                fontSize: 16, 
+                fontWeight: FontWeight.bold, 
+                  ),
+                ),
+                series:PyramidSeries<OggettiFrequenti, String>(
+                    dataSource: oggfreq,
+                          xValueMapper: (OggettiFrequenti data, _) => data.x,
+                          yValueMapper: (OggettiFrequenti data, _) => data.y,
+                          explode: true,
+                          explodeGesture: ActivationMode.singleTap,
+                      )
+                    )
+                )
           ],
         ),
+      ),
       )
     );
   }
@@ -182,3 +263,15 @@ class ChartData {
       final String x;
       final int y;
   }
+
+class SettimanaSpesa{
+  SettimanaSpesa(this.x,this.y);
+    final String x;
+    final double y; 
+}
+
+class OggettiFrequenti{
+  OggettiFrequenti(this.x,this.y);
+    final String x;
+    final int y; 
+}

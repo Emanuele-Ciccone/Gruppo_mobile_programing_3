@@ -253,6 +253,22 @@ Future<double> getMediaSettimanale() async {
   return result.isNotEmpty ? result.first['MediaSettimanale'] as double : 0.0;
 }
 
+Future<List<Map<String, dynamic>>> getTotSpesaSettimana() async {
+  final db = await database;
+  var result = await db.rawQuery(
+    '''SELECT strftime('%Y - %W, ListaOggetto.Data) as Settimana, sum(Oggetto.prezzo * ListaOggetto.Quantita) AS SpesaSettimanale
+       FROM ListaOggetto
+       JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
+      group by Settimana
+      order by Settimana DESC; '''
+  );
+
+  return result
+      .map((e) => e.map((key, value) => MapEntry(key, value is int ? value : (value as num?)?.toInt() ?? 0)))
+      .toList();
+}
+
+
 Future<List<Map<String, dynamic>>> getCategorie() async {
   final db = await database;
   var result = await db.rawQuery(
@@ -277,6 +293,19 @@ Future<List<Map<String, dynamic>>> getCategorie() async {
       ? Oggetto.fromMap(result.first)
       : throw Exception('Oggetto non trovato');
   }
+
+  Future<List<Map<String, dynamic>>> getOggFrequenti() async {
+  final db = await database;
+  var result = await db.rawQuery(
+    '''SELECT Oggetto.Nome, ListaOggetto.Quantita
+       FROM ListaOggetto
+       JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
+       order by ListaOggetto.Quantita DESC
+       LIMIT 3; '''
+  );
+
+  return result;
+}
 
   Future<void> aggiornaQuantitaOggetto(ListaOggetto lo, int nuovaQuantita) async {
   final db = await database;
