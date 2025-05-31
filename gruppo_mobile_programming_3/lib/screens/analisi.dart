@@ -28,17 +28,18 @@ class AnalisiStatePage extends State<AnalisiPage> {
 
 
 
-    Future<void> AggiornaMediaSettimanale() async {
+    Future<void> aggiornaMediaSettimanale() async {
       double media = await data.getMediaSettimanale();
       setState(() {
         MediaSettimanale = media;
       });
     }
 
-    Future<void> AggiornaCategorie() async {
+    Future<void> aggiornaCategorie() async {
     var result = await data.getCategorie();
     setState(() {
       categorie = result;
+      print(categorie);
     });
   }
 
@@ -49,56 +50,65 @@ class AnalisiStatePage extends State<AnalisiPage> {
         child: Column(
           //mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children : [
-                Container(
-                  decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(20.0),
-                  border: Border.all(color: Colors.lightBlueAccent, width: 4.0),
+            IntrinsicHeight(
+            child : Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text( 'Spese totali \n  mensili\n €${SpesaTotale.toStringAsFixed(2)}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        ),
                   ),
-                padding: EdgeInsets.all(20.0),
-                //margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
-                  child: Text( 'Spese totali \n  mensili\n €${SpesaTotale.toStringAsFixed(2)}',
-                  textAlign: TextAlign.center,
-                    style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Roboto',
-                    color: Colors.white,
+                SizedBox(width: 4),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'Media settimanale \n  €${MediaSettimanale.toStringAsFixed(2)}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(20.0),
-                  border: Border.all(color: Colors.lightBlueAccent, width: 4.0),
-                  ),
-                padding: EdgeInsets.all(20.0),
-                //margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
-                  child: Text( 'Media settimanale \n  €${MediaSettimanale.toStringAsFixed(2)}',
-                  textAlign: TextAlign.center,
-                    style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Roboto',
-                    color: Colors.white,
-                  ),
-                ),
-                )
               ]
+            ),
             ),
             Container(
               child  :SfCircularChart(
                 title: ChartTitle(text: 
                 'Top 5 Categorie Usate',
                 textStyle: TextStyle(
-                color: Colors.blueAccent, // Colore del testo
-                fontSize: 20, // Dimensione del font
-                fontWeight: FontWeight.bold, // Testo in grassetto
-                fontFamily: 'Roboto', // Font personalizzato
+                color: Colors.black, // Colore del testo
+                fontSize: 16, // Dimensione del font
+                fontWeight: FontWeight.bold, // Testo in grassetto // Font personalizzato
                   ),
                 ),
                 legend: Legend(isVisible: true),
