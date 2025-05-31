@@ -83,7 +83,7 @@ class DatabaseHelper {
   }
 
   Future<List<Categoria>> getAllCategorie() async {
-    final db = await database;
+    final db = await database; 
     final List<Map<String, dynamic>> maps = await db.query('Categoria');
     return maps.map((map) => Categoria.fromMap(map)).toList();
   }
