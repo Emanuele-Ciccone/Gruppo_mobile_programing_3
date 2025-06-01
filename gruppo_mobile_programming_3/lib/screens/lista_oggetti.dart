@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/appData_provider.dart';
 import '../model/oggetto_model.dart';
+import '../model/categoria_model.dart';
+import '../model/oggettoCategoria_model.dart';
 
 class Lista_Oggetti extends StatelessWidget {
   const Lista_Oggetti({super.key});
@@ -32,13 +34,43 @@ class Lista_Oggetti extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final oggetto = data.oggetti[index];
+                // Trova le categorie collegate a questo oggetto
+                final categorieOggetto = data.oggettoCategorie
+                    .where((oc) => oc.oggettoId == oggetto.id)
+                    .map((oc) => data.categorie.firstWhere(
+                          (cat) => cat.id == oc.categoriaId,
+                          orElse: () => Categoria(id: -1, nome: 'Sconosciuta'),
+                        ))
+                    .where((cat) => cat.id != -1)
+                    .toList();
+
                 return Card(
                   elevation: 3,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     title: Text(oggetto.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('Prezzo: €${oggetto.prezzo?.toStringAsFixed(2) ?? '0.00'}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Prezzo: €${oggetto.prezzo?.toStringAsFixed(2) ?? '0.00'}'),
+                        if (categorieOggetto.isNotEmpty)
+                          Wrap(
+                            spacing: 6,
+                            children: categorieOggetto
+                                .map((cat) => Chip(
+                                      label: Text(cat.nome),
+                                      backgroundColor: Colors.transparent, // Sfondo trasparente
+                                      labelStyle: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      side: const BorderSide(color: Colors.green, width: 2), // Bordo verde
+                                    ))
+                                .toList(),
+                          ),
+                      ],
+                    ),
                     trailing: const Icon(Icons.edit, size: 20),
                     onTap: () {
                       Navigator.push(
@@ -67,6 +99,7 @@ class AggiungiOggettoPage extends StatefulWidget {
 class _AggiungiOggettoPageState extends State<AggiungiOggettoPage> {
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController prezzoController = TextEditingController();
+  final Set<int> selectedCategorie = {};
 
   @override
   void initState() {
@@ -74,6 +107,12 @@ class _AggiungiOggettoPageState extends State<AggiungiOggettoPage> {
     if (widget.oggettoDaModificare != null) {
       nomeController.text = widget.oggettoDaModificare!.nome;
       prezzoController.text = widget.oggettoDaModificare!.prezzo?.toString() ?? '';
+      final data = Provider.of<AppDataProvider>(context, listen: false);
+      selectedCategorie.addAll(
+        data.oggettoCategorie
+            .where((oc) => oc.oggettoId == widget.oggettoDaModificare!.id)
+            .map((oc) => oc.categoriaId),
+      );
     }
   }
 
@@ -107,6 +146,37 @@ class _AggiungiOggettoPageState extends State<AggiungiOggettoPage> {
                 prefixText: '€ ',
               ),
             ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: data.categorie.map((categoria) {
+                final isSelected = selectedCategorie.contains(categoria.id);
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        selectedCategorie.remove(categoria.id);
+                      } else {
+                        selectedCategorie.add(categoria.id!);
+                      }
+                    });
+                  },
+                  child: Chip(
+                    label: Text(categoria.nome),
+                    backgroundColor: Colors.transparent, // Sfondo trasparente
+                    labelStyle: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    side: BorderSide(
+                      color: isSelected ? Colors.green : Colors.grey, // Cambia il colore del bordo
+                      width: 2,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -119,8 +189,28 @@ class _AggiungiOggettoPageState extends State<AggiungiOggettoPage> {
                   if (nome.isNotEmpty && prezzo > 0) {
                     if (isModifica) {
                       await data.updateOggetto(widget.oggettoDaModificare!, nome, prezzo);
+                      // Rimuovi tutte le categorie attuali
+                      for (final oc in data.oggettoCategorie.where((oc) => oc.oggettoId == widget.oggettoDaModificare!.id)) {
+                        await data.rimuoviCategoriaDaOggetto(oc);
+                      }
+                      // Assegna le nuove categorie
+                      for (final catId in selectedCategorie) {
+                        await data.assegnaCategoriaAOggetto(OggettoCategoria(
+                          oggettoId: widget.oggettoDaModificare!.id,
+                          categoriaId: catId,
+                        ));
+                      }
                     } else {
-                      await data.aggiungiOggetto(Oggetto(nome: nome, prezzo: prezzo));
+                      final nuovoOggetto = Oggetto(nome: nome, prezzo: prezzo);
+                      await data.aggiungiOggetto(nuovoOggetto);
+                      // Recupera l'id appena creato
+                      final ogg = data.oggetti.firstWhere((o) => o.nome == nome);
+                      for (final catId in selectedCategorie) {
+                        await data.assegnaCategoriaAOggetto(OggettoCategoria(
+                          oggettoId: ogg.id,
+                          categoriaId: catId,
+                        ));
+                      }
                     }
                     Navigator.pop(context);
                   } else {
@@ -142,46 +232,6 @@ class _AggiungiOggettoPageState extends State<AggiungiOggettoPage> {
                 ),
               ),
             ),
-            if (isModifica) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    final conferma = await showDialog<bool>(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: const Text('Conferma eliminazione'),
-                        content: Text('Vuoi eliminare "${widget.oggettoDaModificare!.nome}"?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Annulla'),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Elimina'),
-                            style: TextButton.styleFrom(foregroundColor: Colors.red),
-                          ),
-                        ],
-                      ),
-                    );
-                    
-                    if (conferma == true) {
-                      await data.rimuoviOggetto(widget.oggettoDaModificare!.nome);
-                      if (context.mounted) Navigator.pop(context);
-                    }
-                  },
-                  icon: const Icon(Icons.delete),
-                  label: const Text('Elimina Oggetto'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),

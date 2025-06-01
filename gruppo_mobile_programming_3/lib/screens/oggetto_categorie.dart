@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../provider/appData_provider.dart';
 import '../model/oggetto_model.dart';
-import '../model/categoria_model.dart';
 import '../model/oggettoCategoria_model.dart';
 
 class OggettoCategoriePage extends StatelessWidget {
@@ -35,7 +34,7 @@ class OggettoCategoriePage extends StatelessWidget {
                     tooltip: 'Rimuovi da questa categoria',
                     onPressed: () async {
                       await data.rimuoviCategoriaDaOggetto(
-                        OggettoCategoria(oggettoId: oggetto.id!, categoriaId: categoria.id!),
+                        OggettoCategoria(oggettoId: oggetto.id, categoriaId: categoria.id!),
                       );
                     },
                   )
@@ -44,7 +43,7 @@ class OggettoCategoriePage extends StatelessWidget {
                     tooltip: 'Aggiungi a questa categoria',
                     onPressed: () async {
                       await data.assegnaCategoriaAOggetto(
-                        OggettoCategoria(oggettoId: oggetto.id!, categoriaId: categoria.id!),
+                        OggettoCategoria(oggettoId: oggetto.id, categoriaId: categoria.id!),
                       );
                     },
                   ),
