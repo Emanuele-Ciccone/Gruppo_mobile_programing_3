@@ -32,11 +32,12 @@ class AnalisiStatePage extends State<AnalisiPage> {
   Oggetto fragola = new Oggetto(id: 3,nome : 'fragola',prezzo: 4.0);
   Oggetto spazzolino = new Oggetto(id: 4,nome : 'spazzolino',prezzo: 5.0);
   Lista lista = new Lista(nome: 'Lista1', id: 1);
+  Lista listasett = new Lista(nome: 'Lista3', id: 2);
   Categoria cibo = new Categoria(id : 1,nome: 'cibo');
   Categoria igiene = new Categoria(id : 2, nome: 'igiene');
   ListaOggetto lo = new ListaOggetto(listaId:'1', oggettoId: 2, quantita: 2, data: DateTime.now());
   ListaOggetto log = new ListaOggetto(listaId:'1', oggettoId: 3, quantita: 1, data: DateTime.now());
-  ListaOggetto loo = new ListaOggetto(listaId:'1', oggettoId: 4, quantita: 3, data: DateTime.now());
+  ListaOggetto loo = new ListaOggetto(listaId:'2', oggettoId: 4, quantita: 3, data: DateTime.now().subtract(Duration(days: 7)));
   OggettoCategoria oc = new OggettoCategoria(oggettoId: 2, categoriaId: 1);
   OggettoCategoria oc2 = new OggettoCategoria(oggettoId: 3, categoriaId: 1);
   OggettoCategoria oc3 = new OggettoCategoria(oggettoId: 4, categoriaId: 2);
@@ -70,7 +71,7 @@ class AnalisiStatePage extends State<AnalisiPage> {
     setState(() {
       settimane = result;
       setspesa = settimane.map((cat) {
-    return SettimanaSpesa(cat['Settimana'] as String, cat['SpesaPrezzo'] as double);
+    return SettimanaSpesa(cat['Settimana'] as String, cat['SpesaSettimanale'] as double);
     }).toList();
     });
   }
@@ -80,7 +81,7 @@ class AnalisiStatePage extends State<AnalisiPage> {
     setState(() {
       ogg = result;
       oggfreq = ogg.map((cat) {
-    return OggettiFrequenti(cat['Nome'] as String, cat['Frequenza'] as int);
+    return OggettiFrequenti(cat['Nome'] as String, (cat['Quantita'] as int?) ?? 0);
     }).toList();
     });
   }
@@ -88,12 +89,13 @@ class AnalisiStatePage extends State<AnalisiPage> {
   
   @override
   void initState(){
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    super.initState(); 
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
     data = Provider.of<AppDataProvider>(context, listen: false);
     
     // Inizializza i dati una sola volta
     data.aggiungiLista(lista.nome);
+    data.aggiungiLista(listasett.nome);
     data.aggiungiOggetto(banana);
     data.aggiungiOggetto(fragola);
     data.aggiungiOggetto(spazzolino);
@@ -106,17 +108,18 @@ class AnalisiStatePage extends State<AnalisiPage> {
     data.assegnaCategoriaAOggetto(oc2);
     data.assegnaCategoriaAOggetto(oc3);
 
-    aggiornaSpesaMensile();
-    aggiornaMediaSettimanale();
-    aggiornaCategorie();
-    aggiornaSettimane();
-    aggiornaOggettiFrequenti();
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    await aggiornaOggettiFrequenti();
+    await aggiornaSpesaMensile();
+    await aggiornaMediaSettimanale();
+    await aggiornaCategorie();
+    await aggiornaSettimane();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-     //final data = Provider.of<AppDataProvider>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Analisi')),
@@ -124,7 +127,6 @@ class AnalisiStatePage extends State<AnalisiPage> {
       child :SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Column(
-          //mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IntrinsicHeight(
             child : Row(
@@ -202,6 +204,8 @@ class AnalisiStatePage extends State<AnalisiPage> {
               )
             ),
             SizedBox(height: 8),
+            Text("$settimane"),
+            Text("$setspesa"),
             Text('Spese settimanali',
             style: TextStyle(color: Colors.black, 
                 fontSize: 20, 
@@ -215,9 +219,9 @@ class AnalisiStatePage extends State<AnalisiPage> {
               child: SfCartesianChart(
                 primaryXAxis: CategoryAxis(
                   title: AxisTitle(text: 'Settimane'),
+                  labelRotation: 45
                 ),
                 primaryYAxis: NumericAxis(
-                  //interval:100,
 
                 title: AxisTitle(text: 'Soldi spesi'),
                 ),
@@ -226,6 +230,7 @@ class AnalisiStatePage extends State<AnalisiPage> {
             dataSource: setspesa,
             xValueMapper: (SettimanaSpesa val, _) => val.x,
             yValueMapper: (SettimanaSpesa val, _) => val.y,
+            color: Colors.blue
             )
           ],
           ),
@@ -242,12 +247,19 @@ class AnalisiStatePage extends State<AnalisiPage> {
                 fontWeight: FontWeight.bold, 
                   ),
                 ),
+                legend: Legend( isVisible: true, position: LegendPosition.bottom, overflowMode: LegendItemOverflowMode.wrap),
                 series:PyramidSeries<OggettiFrequenti, String>(
                     dataSource: oggfreq,
                           xValueMapper: (OggettiFrequenti data, _) => data.x,
                           yValueMapper: (OggettiFrequenti data, _) => data.y,
+                          gapRatio: 0,
                           explode: true,
                           explodeGesture: ActivationMode.singleTap,
+                          dataLabelSettings: DataLabelSettings(
+                            isVisible: true,
+                            alignment: ChartAlignment.center,
+                            labelPosition: ChartDataLabelPosition.inside, 
+                          ),
                       )
                     )
                 )

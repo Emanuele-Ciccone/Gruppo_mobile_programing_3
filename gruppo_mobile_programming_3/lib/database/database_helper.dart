@@ -263,9 +263,7 @@ Future<List<Map<String, dynamic>>> getTotSpesaSettimana() async {
       order by Settimana DESC; '''
   );
 
-  return result
-      .map((e) => e.map((key, value) => MapEntry(key, value is int ? value : (value as num?)?.toInt() ?? 0)))
-      .toList();
+  return result;
 }
 
 
@@ -297,7 +295,7 @@ Future<List<Map<String, dynamic>>> getCategorie() async {
   Future<List<Map<String, dynamic>>> getOggFrequenti() async {
   final db = await database;
   var result = await db.rawQuery(
-    '''SELECT Oggetto.Nome, ListaOggetto.Quantita
+    '''SELECT Oggetto.Nome, ListaOggetto.Quantita as Quantita
        FROM ListaOggetto
        JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
        order by ListaOggetto.Quantita DESC
