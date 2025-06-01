@@ -204,7 +204,7 @@ class AnalisiStatePage extends State<AnalisiPage> {
             SizedBox(height: 8),
             Text('Spese settimanali',
             style: TextStyle(color: Colors.black, 
-                fontSize: 16, 
+                fontSize: 20, 
                 fontWeight: FontWeight.bold, 
             )),
             SizedBox(height: 8),
