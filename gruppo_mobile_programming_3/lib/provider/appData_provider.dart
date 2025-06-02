@@ -111,7 +111,7 @@ class AppDataProvider extends ChangeNotifier {
   }
 
   Future<List<Map<String, dynamic>>> getSpesa() async {
-    return await _db.getTotSpesaSettimana();
+    return await _db.getSpesa();
   }
 
   Future<List<Map<String, dynamic>>> getOggFreq() async {

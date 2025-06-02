@@ -217,7 +217,7 @@ class _AggiungiOggettoPageState extends State<AggiungiOggettoPage> {
                     const SizedBox(height: 20),
                   ],
                   
-                  
+                  // Pulsante principale (Salva/Aggiungi)
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -260,6 +260,42 @@ class _AggiungiOggettoPageState extends State<AggiungiOggettoPage> {
                       ),
                     ),
                   ),
+                  
+                  // Pulsante di eliminazione (solo in modalità modifica)
+                  if (isModifica) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: _isLoading ? null : () => _mostraDialogEliminazione(),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          side: const BorderSide(color: Colors.red, width: 1.5),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.delete_outline,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Elimina Oggetto',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -319,6 +355,112 @@ class _AggiungiOggettoPageState extends State<AggiungiOggettoPage> {
     } catch (e) {
       if (mounted) {
         _mostraErrore('Errore durante il salvataggio: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _mostraDialogEliminazione() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.orange,
+                size: 28,
+              ),
+              SizedBox(width: 12),
+              Text('Conferma eliminazione'),
+            ],
+          ),
+          content: Text(
+            'Sei sicuro di voler eliminare "${widget.oggettoDaModificare?.nome}"?\n\nQuesta azione non può essere annullata.',
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Annulla',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _eliminaOggetto();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Elimina',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _eliminaOggetto() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final data = Provider.of<AppDataProvider>(context, listen: false);
+      
+      // Prima rimuovi tutte le associazioni categoria-oggetto
+      final oggettoCategorieDaRimuovere = data.oggettoCategorie
+          .where((oc) => oc.oggettoId == widget.oggettoDaModificare!.id)
+          .toList();
+          
+      for (final oc in oggettoCategorieDaRimuovere) {
+        await data.rimuoviCategoriaDaOggetto(oc);
+      }
+      
+      // Poi elimina l'oggetto
+      await data.rimuoviOggetto(widget.oggettoDaModificare!.nome);
+      
+      if (mounted) {
+        // Mostra un messaggio di successo
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Oggetto "${widget.oggettoDaModificare!.nome}" eliminato con successo'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+        
+        // Torna alla schermata precedente
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        _mostraErrore('Errore durante l\'eliminazione: $e');
       }
     } finally {
       if (mounted) {

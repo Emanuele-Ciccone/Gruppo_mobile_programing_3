@@ -119,7 +119,7 @@ class AnalisiStatePage extends State<AnalisiPage> with WidgetsBindingObserver {
                   sett['SpesaSettimanale'] as double,
                 ))
             .toList();
-      });
+          });
     }
   }
 

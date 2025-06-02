@@ -150,17 +150,17 @@ class Lista_Oggetti extends StatelessWidget {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.withOpacity(0.1),
+                                        color: theme.primaryColor.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                          color: Colors.green.withOpacity(0.3),
+                                          color: theme.primaryColor.withOpacity(0.3),
                                           width: 1,
                                         ),
                                       ),
                                       child: Text(
                                         cat.nome,
                                         style: TextStyle(
-                                          color: Colors.green[700],
+                                          color: theme.primaryColor,
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                         ),

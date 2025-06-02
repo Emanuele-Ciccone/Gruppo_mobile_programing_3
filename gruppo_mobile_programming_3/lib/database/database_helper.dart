@@ -250,21 +250,20 @@ class DatabaseHelper {
 }
 
 Future<double> getMediaSettimanale() async {
-  final db = await database;
-  var result = await db.rawQuery(
-    '''SELECT avg(Oggetto.prezzo * ListaOggetto.Quantita) AS MediaSettimanale
-       FROM ListaOggetto
-       JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
-      WHERE ListaOggetto.Data >= date('now', '-7 days');'''
-  );
-
-  return result.isNotEmpty && result.first['SpesaTotale'] != null
-    ? (result.first['SpesaTotale'] as num).toDouble()
-    : 0.0;
+final settimane = await getSpesa(); // Riusa la query che funziona!
+  
+  if (settimane.isEmpty) return 0.0;
+  
+  double sommaSpese = 0.0;
+  for (var settimana in settimane) {
+    sommaSpese += settimana['SpesaSettimanale'] as double;
+  }
+  
+  return sommaSpese / settimane.length;
 }
 
-Future<List<Map<String, dynamic>>> getTotSpesaSettimana() async {
-  final db = await database;
+Future<List<Map<String, dynamic>>> getSpesa() async {
+   final db = await database;
   var result = await db.rawQuery(
     '''SELECT strftime('%Y - %W', ListaOggetto.Data) as Settimana, 
               SUM(Oggetto.prezzo * ListaOggetto.Quantita) AS SpesaSettimanale
@@ -273,7 +272,6 @@ Future<List<Map<String, dynamic>>> getTotSpesaSettimana() async {
        GROUP BY Settimana
        ORDER BY Settimana DESC;'''
   );
-
   return result;
 }
 
