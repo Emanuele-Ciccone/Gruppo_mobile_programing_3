@@ -158,7 +158,7 @@ class _OggettiPageState extends State<OggettiPage> {
                                     oggettoId: oggetto.id,
                                     quantita: 1,
                                     data: DateTime.now(),
-                                    isChecked: 0,
+                                    IsCheck: 0,
                                   );
 
                                   await data.assegnaOggettoALista(relazione);
@@ -283,7 +283,7 @@ class _OggettiPageState extends State<OggettiPage> {
                               oggettoId: nuovoOggetto.id,
                               quantita: 1,
                               data: DateTime.now(),
-                              isChecked: 0,
+                              IsCheck: 0,
                             );
 
                             await data.assegnaOggettoALista(relazione);

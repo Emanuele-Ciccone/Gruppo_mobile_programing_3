@@ -316,11 +316,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                       return Container(
                                         decoration: BoxDecoration(
-                                          color: lo.isChecked == 1 ? const Color(0xFFF0FFF4) : Colors.white,
+                                          color: lo.IsCheck == 1 ? const Color(0xFFF0FFF4) : Colors.white,
                                           borderRadius: BorderRadius.circular(16),
                                           border: Border.all(
-                                            color: lo.isChecked == 1 ? const Color(0xFF68D391) : Colors.grey[200]!,
-                                            width: lo.isChecked == 1 ? 2 : 1,
+                                            color: lo.IsCheck == 1 ? const Color(0xFF68D391) : Colors.grey[200]!,
+                                            width: lo.IsCheck == 1 ? 2 : 1,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
@@ -335,60 +335,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                           child: Row(
                                             children: [
                                               // Checkbox personalizzato - VERSIONE MIGLIORATA
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  final nuovoStato = lo.isChecked == 1 ? 0 : 1;
-                                                  
-                                                  try {
-                                                    // Prima aggiorna il database
-                                                    await data.aggiornaStatoOggetto(lo, nuovoStato);
-                                                    
-                                                    // Poi aggiorna immediatamente la UI
-                                                    setState(() {
-                                                      oggettiListaCorrente[i] = ListaOggetto(
-                                                        listaId: lo.listaId,
-                                                        data: lo.data,
-                                                        oggettoId: lo.oggettoId,
-                                                        quantita: lo.quantita,
-                                                        isChecked: nuovoStato,
-                                                      );
-                                                    });
-                                                    
-                                                    print('Stato aggiornato: ${oggetto.nome} -> $nuovoStato');
-                                                    
-                                                  } catch (e) {
-                                                    print('Errore nell\'aggiornamento dello stato: $e');
-                                                    // Mostra un messaggio di errore all'utente
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text('Errore nel salvare lo stato: $e'),
-                                                        backgroundColor: Colors.red,
-                                                      ),
-                                                    );
-                                                  }
-                                                },
-                                                child: AnimatedContainer(
-                                                  duration: const Duration(milliseconds: 200),
-                                                  width: 28,
-                                                  height: 28,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: (lo.isChecked == 1) ? const Color(0xFF48BB78) : Colors.transparent,
-                                                    border: Border.all(
-                                                      color: (lo.isChecked == 1) ? const Color(0xFF48BB78) : Colors.grey[400]!,
-                                                      width: 2,
-                                                    ),
-                                                  ),
-                                                  child: (lo.isChecked == 1)
-                                                      ? const Icon(
-                                                          Icons.check,
-                                                          size: 18,
-                                                          color: Colors.white,
-                                                        )
-                                                      : null,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 16),
+                                              
                                               
                                               // Informazioni oggetto
                                               Expanded(
@@ -401,7 +348,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                         fontSize: 17,
                                                         fontWeight: FontWeight.w600,
                                                         color: const Color(0xFF2D3748),
-                                                        decoration: (lo.isChecked == 1) ? TextDecoration.lineThrough : null,
+                                                        decoration: (lo.IsCheck == 1) ? TextDecoration.lineThrough : null,
                                                         decorationColor: Colors.grey[500],
                                                       ),
                                                     ),
@@ -435,6 +382,49 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                       ],
                                                     ),
                                                   ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 16),
+
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  final nuovoStato = lo.IsCheck == 1 ? 0 : 1;                                                  
+                                                  await data.aggiornaStatoOggetto(lo, nuovoStato);                                     
+                                                  // Ricarica subito per verificare
+                                                    // Ricarica gli oggetti della lista corrente
+                                                  await _loadOggettiLista();
+                                                    // Poi aggiorna immediatamente la UI
+                                                    setState(() {
+                                                      oggettiListaCorrente[i] = ListaOggetto(
+                                                        listaId: lo.listaId,
+                                                        data: lo.data,
+                                                        oggettoId: lo.oggettoId,
+                                                        quantita: lo.quantita,
+                                                        IsCheck: nuovoStato,
+                                                      );
+                                                    });
+
+                                                },
+
+                                                child: AnimatedContainer(
+                                                  duration: const Duration(milliseconds: 200),
+                                                  width: 28,
+                                                  height: 28,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: (lo.IsCheck == 1) ? const Color(0xFF48BB78) : Colors.transparent,
+                                                    border: Border.all(
+                                                      color: (lo.IsCheck == 1) ? const Color(0xFF48BB78) : Colors.grey[400]!,
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child: (lo.IsCheck == 1)
+                                                      ? const Icon(
+                                                          Icons.check,
+                                                          size: 18,
+                                                          color: Colors.white,
+                                                        )
+                                                      : null,
                                                 ),
                                               ),
                                             ],

@@ -3,14 +3,14 @@ class ListaOggetto {
   final int oggettoId;
   final int quantita;
   final DateTime data;
-  int isChecked = 0;
+  int IsCheck = 0;
 
   ListaOggetto({
     required this.listaId,
     required this.oggettoId,
     required this.quantita,
     required this.data,
-    required this.isChecked,  
+    required this.IsCheck,  
   });
 
   factory ListaOggetto.fromMap(Map<String, dynamic> map) => ListaOggetto(
@@ -18,7 +18,7 @@ class ListaOggetto {
     oggettoId: map['OggettoId'],
     quantita: map['Quantita'],
     data: DateTime.parse(map['Data']),
-    isChecked: map['isChecked'] ?? 0, 
+    IsCheck: map['IsCheck'] ?? 0, 
   );
 
   Map<String, dynamic> toMap() => {
@@ -26,6 +26,6 @@ class ListaOggetto {
     'OggettoId': oggettoId,
     'Quantita': quantita,
     'Data': data.toIso8601String(),
-    'isChecked': isChecked,
+    'IsCheck': IsCheck,
   };
 }
