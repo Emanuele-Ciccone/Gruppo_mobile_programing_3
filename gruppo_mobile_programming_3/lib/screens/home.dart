@@ -199,14 +199,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             color: Colors.grey[200],
           ),
         ),
-        // Aggiungi un pulsante di refresh nella AppBar
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _initializeData,
-            tooltip: 'Ricarica dati',
-          ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: _initializeData, // Pull-to-refresh
