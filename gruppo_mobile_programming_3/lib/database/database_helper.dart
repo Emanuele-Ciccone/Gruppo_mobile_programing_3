@@ -307,15 +307,19 @@ Future<List<Map<String, dynamic>>> getCategorie() async {
   Future<List<Map<String, dynamic>>> getOggFrequenti() async {
   final db = await database;
   var result = await db.rawQuery(
-    '''SELECT Oggetto.Nome, ListaOggetto.Quantita as Quantita
-       FROM ListaOggetto
-       JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
-       order by ListaOggetto.Quantita DESC
-       LIMIT 3; '''
+    '''
+    SELECT Oggetto.Nome, SUM(ListaOggetto.Quantita) AS QuantitaTotale
+    FROM ListaOggetto
+    JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
+    GROUP BY ListaOggetto.OggettoId
+    ORDER BY QuantitaTotale DESC
+    LIMIT 3;
+    '''
   );
-
   return result;
 }
+
+
 
   Future<void> aggiornaQuantitaOggetto(ListaOggetto lo, int nuovaQuantita) async {
   final db = await database;

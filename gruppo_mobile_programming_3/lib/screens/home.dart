@@ -20,28 +20,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    // Aggiungi l'observer per il ciclo di vita dell'app
     WidgetsBinding.instance.addObserver(this);
     _initializeData();
   }
 
   @override
   void dispose() {
-    // Rimuovi l'observer quando il widget viene distrutto
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  // Questo metodo viene chiamato quando l'app torna in foreground
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Ricarica i dati quando l'app torna attiva
       _initializeData();
     }
   }
 
-  // Metodo per inizializzare/ricaricare tutti i dati
+  
   Future<void> _initializeData() async {
     final data = Provider.of<AppDataProvider>(context, listen: false);
     
@@ -49,18 +45,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       isLoading = true;
     });
 
-    try {
-      // Aggiorna la visualList dalle liste già disponibili
-      visualList = List.from(data.liste.reversed.take(3));
-      
-      // Ricarica gli oggetti della lista principale dal database
-      await _loadOggettiLista();
-    } catch (e) {
-      print('Errore nel caricamento dati: $e');
-      setState(() {
-        isLoading = false;
-      });
-    }
+    
+    visualList = List.from(data.liste.reversed.take(3));
+    
+    
+    await _loadOggettiLista();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> _loadOggettiLista() async {
@@ -85,7 +77,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         isLoading = false;
       });
     } catch (e) {
-      print('Errore nel caricamento oggetti: $e');
       setState(() {
         isLoading = false;
       });
@@ -99,7 +90,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       visualList[0] = visualList[index];
       visualList[index] = temp;
     });
-    // Ricarica gli oggetti della nuova lista principale
+    
     _loadOggettiLista();
   }
 
@@ -131,12 +122,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final data = Provider.of<AppDataProvider>(context);
+    final theme = Theme.of(context);
 
     if (visualList.isEmpty && !isLoading) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF5F7FA),
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          centerTitle: true,
+          title: const Text(
+            'Le Mie Liste',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+            ),
+          ),
+        ),
         body: RefreshIndicator(
-          onRefresh: _initializeData, // Aggiungi pull-to-refresh
+          onRefresh: _initializeData,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -155,10 +160,33 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  "Inizia creando la tua prima lista della spesa",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[500],
+                  ),
+                ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _initializeData,
-                  child: Text('Ricarica'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                  ),
+                  child: const Text(
+                    'Ricarica',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -169,10 +197,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     if (isLoading) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF5F7FA),
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          centerTitle: true,
+          title: const Text(
+            'Le Mie Liste',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+            ),
+          ),
+        ),
         body: Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4299E1)),
+            valueColor: AlwaysStoppedAnimation<Color>(theme.primaryColor),
           ),
         ),
       );
@@ -181,384 +222,352 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final mainLista = visualList[0];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        centerTitle: true,
         title: const Text(
           'Le Mie Liste',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF2D3748),
-        elevation: 0,
-        shadowColor: Colors.transparent,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: Colors.grey[200],
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
           ),
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: _initializeData, // Pull-to-refresh
+        onRefresh: _initializeData,
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // MAIN LISTA che prende tutto lo spazio disponibile sopra
+              
               Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 400),
-                  switchInCurve: Curves.easeIn,
-                  switchOutCurve: Curves.easeOut,
-                  child: Container(
-                    key: ValueKey(mainLista.nome),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header con titolo e pulsante modifica
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  mainLista.nome,
-                                  style: const TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2D3748),
-                                  ),
-                                ),
-                              ),
-                              Material(
-                                color: const Color(0xFF4299E1),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        
+                        Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: theme.primaryColor.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(12),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(12),
-                                  onTap: () => modificaLista(mainLista),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(12),
-                                    child: const Icon(
-                                      Icons.edit_outlined,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
+                              ),
+                              child: Icon(
+                                Icons.list_alt,
+                                color: theme.primaryColor,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                mainLista.nome,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          
-                          // Lista oggetti
-                          oggettiListaCorrente.isEmpty
-                              ? Expanded(
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.shopping_cart_outlined,
-                                          size: 60,
-                                          color: Colors.grey[400],
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: theme.primaryColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.white),
+                                tooltip: 'Modifica Lista',
+                                onPressed: () => modificaLista(mainLista),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        
+                        
+                        oggettiListaCorrente.isEmpty
+                            ? Expanded(
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.shopping_cart_outlined,
+                                        size: 80,
+                                        color: Colors.grey[400],
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        "Nessun oggetto nella lista",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                        const SizedBox(height: 12),
-                                        Text(
-                                          "Nessun oggetto nella lista",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[600],
-                                          ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        "Tocca il pulsante modifica per aggiungere oggetti",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[500],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                )
-                              : Expanded(
-                                  child: ListView.separated(
-                                    itemCount: oggettiListaCorrente.length,
-                                    separatorBuilder: (context, index) => const SizedBox(height: 12),
-                                    itemBuilder: (context, i) {
-                                      var lo = oggettiListaCorrente[i];
-                                      final oggetto = data.oggetti.firstWhere(
-                                        (o) => o.id == lo.oggettoId,
-                                        orElse: () => Oggetto(id: -1, nome: '', prezzo: 0),
-                                      );
+                                ),
+                              )
+                            : Expanded(
+                                child: ListView.builder(
+                                  itemCount: oggettiListaCorrente.length,
+                                  itemBuilder: (context, i) {
+                                    var lo = oggettiListaCorrente[i];
+                                    final oggetto = data.oggetti.firstWhere(
+                                      (o) => o.id == lo.oggettoId,
+                                      orElse: () => Oggetto(id: -1, nome: '', prezzo: 0),
+                                    );
 
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          color: lo.IsCheck == 1 ? const Color(0xFFF0FFF4) : Colors.white,
-                                          borderRadius: BorderRadius.circular(16),
-                                          border: Border.all(
-                                            color: lo.IsCheck == 1 ? const Color(0xFF68D391) : Colors.grey[200]!,
-                                            width: lo.IsCheck == 1 ? 2 : 1,
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      decoration: BoxDecoration(
+                                        color: lo.IsCheck == 1 ? theme.primaryColor.withOpacity(0.1) : Colors.grey[50],
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: lo.IsCheck == 1 ? theme.primaryColor.withOpacity(0.3) : Colors.grey[200]!,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: ListTile(
+                                        contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
+                                        title: Text(
+                                          oggetto.nome,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                            decoration: lo.IsCheck == 1 ? TextDecoration.lineThrough : null,
+                                            decorationColor: Colors.grey[500],
                                           ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(0.04),
-                                              blurRadius: 8,
-                                              offset: const Offset(0, 2),
+                                        ),
+                                        subtitle: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: theme.primaryColor.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: Text(
+                                                'Qtà: ${lo.quantita}',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: theme.primaryColor,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              '€${(oggetto.prezzo ?? 0).toStringAsFixed(2)}',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.grey[700],
+                                              ),
                                             ),
                                           ],
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16),
-                                          child: Row(
-                                            children: [
-                                              // Checkbox personalizzato - VERSIONE MIGLIORATA
-                                              
-                                              
-                                              // Informazioni oggetto
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      oggetto.nome,
-                                                      style: TextStyle(
-                                                        fontSize: 17,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: const Color(0xFF2D3748),
-                                                        decoration: (lo.IsCheck == 1) ? TextDecoration.lineThrough : null,
-                                                        decorationColor: Colors.grey[500],
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Row(
-                                                      children: [
-                                                        Container(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                                          decoration: BoxDecoration(
-                                                            color: const Color(0xFF4299E1).withOpacity(0.1),
-                                                            borderRadius: BorderRadius.circular(8),
-                                                          ),
-                                                          child: Text(
-                                                            'x${lo.quantita}',
-                                                            style: const TextStyle(
-                                                              fontSize: 12,
-                                                              fontWeight: FontWeight.w600,
-                                                              color: Color(0xFF4299E1),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(width: 12),
-                                                        Text(
-                                                          '€${(oggetto.prezzo ?? 0).toStringAsFixed(2)}',
-                                                          style: TextStyle(
-                                                            fontSize: 15,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: Colors.grey[700],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
+                                        trailing: GestureDetector(
+                                          onTap: () async {
+                                            final nuovoStato = lo.IsCheck == 1 ? 0 : 1;
+                                            await data.aggiornaStatoOggetto(lo, nuovoStato);
+                                            await _loadOggettiLista();
+                                            setState(() {
+                                              oggettiListaCorrente[i] = ListaOggetto(
+                                                listaId: lo.listaId,
+                                                data: lo.data,
+                                                oggettoId: lo.oggettoId,
+                                                quantita: lo.quantita,
+                                                IsCheck: nuovoStato,
+                                              );
+                                            });
+                                          },
+                                          child: Container(
+                                            width: 40,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: lo.IsCheck == 1 ? theme.primaryColor : Colors.transparent,
+                                              border: Border.all(
+                                                color: lo.IsCheck == 1 ? theme.primaryColor : Colors.grey[400]!,
+                                                width: 2,
                                               ),
-                                              const SizedBox(width: 16),
-
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  final nuovoStato = lo.IsCheck == 1 ? 0 : 1;                                                  
-                                                  await data.aggiornaStatoOggetto(lo, nuovoStato);                                     
-                                                  // Ricarica subito per verificare
-                                                    // Ricarica gli oggetti della lista corrente
-                                                  await _loadOggettiLista();
-                                                    // Poi aggiorna immediatamente la UI
-                                                    setState(() {
-                                                      oggettiListaCorrente[i] = ListaOggetto(
-                                                        listaId: lo.listaId,
-                                                        data: lo.data,
-                                                        oggettoId: lo.oggettoId,
-                                                        quantita: lo.quantita,
-                                                        IsCheck: nuovoStato,
-                                                      );
-                                                    });
-
-                                                },
-
-                                                child: AnimatedContainer(
-                                                  duration: const Duration(milliseconds: 200),
-                                                  width: 28,
-                                                  height: 28,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: (lo.IsCheck == 1) ? const Color(0xFF48BB78) : Colors.transparent,
-                                                    border: Border.all(
-                                                      color: (lo.IsCheck == 1) ? const Color(0xFF48BB78) : Colors.grey[400]!,
-                                                      width: 2,
-                                                    ),
-                                                  ),
-                                                  child: (lo.IsCheck == 1)
-                                                      ? const Icon(
-                                                          Icons.check,
-                                                          size: 18,
-                                                          color: Colors.white,
-                                                        )
-                                                      : null,
-                                                ),
-                                              ),
-                                            ],
+                                            ),
+                                            child: lo.IsCheck == 1
+                                                ? const Icon(
+                                                    Icons.check,
+                                                    size: 20,
+                                                    color: Colors.white,
+                                                  )
+                                                : null,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                          
-                          const SizedBox(height: 20),
-                          
-                          // Totale
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF2D3748),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  "Totale Spesa:",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Builder(
-                                  builder: (context) {
-                                    double totale = 0;
-                                    for (var lo in oggettiListaCorrente) {
-                                      final oggetto = data.oggetti.firstWhere(
-                                        (o) => o.id == lo.oggettoId,
-                                        orElse: () => Oggetto(id: -1, nome: '', prezzo: 0),
-                                      );
-                                      totale += (oggetto.prezzo ?? 0) * lo.quantita;
-                                    }
-                                    
-                                    return Text(
-                                      "€${totale.toStringAsFixed(2)}",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                        color: Color(0xFF68D391),
                                       ),
                                     );
                                   },
                                 ),
-                              ],
-                            ),
+                              ),
+                        
+
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: theme.primaryColor,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Totale Spesa:",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Builder(
+                                builder: (context) {
+                                  double totale = 0;
+                                  for (var lo in oggettiListaCorrente) {
+                                    final oggetto = data.oggetti.firstWhere(
+                                      (o) => o.id == lo.oggettoId,
+                                      orElse: () => Oggetto(id: -1, nome: '', prezzo: 0),
+                                    );
+                                    totale += (oggetto.prezzo ?? 0) * lo.quantita;
+                                  }
+                                  
+                                  return Text(
+                                    "€${totale.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
-              // ALTRE 2 LISTE
-              SizedBox(
-                height: 140,
-                child: Row(
-                  children: List.generate(2, (i) {
-                    if (visualList.length <= i + 1) return const SizedBox();
-                    final lista = visualList[i + 1];
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () => swapWithMain(i + 1),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.easeInOut,
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF4299E1).withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.list_alt,
-                                    color: Color(0xFF4299E1),
-                                    size: 24,
-                                  ),
-                                ),
-                                Text(
-                                  lista.nome,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF2D3748),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                FutureBuilder<int>(
-                                  future: data.getListaOggettiCountAggiornato(lista.nome),
-                                  builder: (context, snapshot) {
-                                    if (!snapshot.hasData) {
-                                      return Text(
-                                        "...",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[600],
-                                        ),
-                                      );
-                                    }
-                                    return Text(
-                                      '${snapshot.data} ${snapshot.data == 1 ? 'oggetto' : 'oggetti'}',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    );
-                                  },
+              if (visualList.length > 1)
+                SizedBox(
+                  height: 124,
+                  child: Row(
+                    children: List.generate(2, (i) {
+                      if (visualList.length <= i + 1) return const SizedBox();
+                      final lista = visualList[i + 1];
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => swapWithMain(i + 1),
+                          child: Container(
+                            margin: EdgeInsets.only(
+                              left: i == 0 ? 0 : 8,
+                              right: i == 1 ? 0 : 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: theme.primaryColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Icon(
+                                      Icons.list_alt,
+                                      color: theme.primaryColor,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    lista.nome,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 1),
+                                  FutureBuilder<int>(
+                                    future: data.getListaOggettiCountAggiornato(lista.nome),
+                                    builder: (context, snapshot) {
+                                      final count = snapshot.data ?? 0;
+                                      return Text(
+                                        '$count elementi',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    }),
+                  ),
                 ),
-              ),
             ],
           ),
         ),

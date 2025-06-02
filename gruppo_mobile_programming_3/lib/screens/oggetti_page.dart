@@ -4,11 +4,10 @@ import 'package:provider/provider.dart';
 import '../model/oggetto_model.dart';
 import '../model/listaOggetto_model.dart';
 import '../model/lista_model.dart';
-import 'oggetto_categorie.dart';
+import 'modifica_oggetto.dart';
 
 class OggettiPage extends StatefulWidget {
   final Lista lista;
-
   const OggettiPage({super.key, required this.lista});
 
   @override
@@ -38,16 +37,14 @@ class _OggettiPageState extends State<OggettiPage> {
   }
 
   void _mostraMessaggio(String messaggio, {bool isError = false}) {
-    // Nasconde il SnackBar precedente prima di mostrarne uno nuovo
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(messaggio),
         backgroundColor: isError ? Colors.red : Colors.green,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        duration: const Duration(seconds: 2), // Durata più breve
+        duration: const Duration(seconds: 2), 
       ),
     );
   }
@@ -56,7 +53,6 @@ class _OggettiPageState extends State<OggettiPage> {
   Widget build(BuildContext context) {
     final data = Provider.of<AppDataProvider>(context);
     final theme = Theme.of(context);
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -78,7 +74,6 @@ class _OggettiPageState extends State<OggettiPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Card per aggiungere oggetto esistente
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -111,28 +106,37 @@ class _OggettiPageState extends State<OggettiPage> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: DropdownButtonHideUnderline(
-                              child: DropdownButton<Oggetto>(
-                                value: oggettoEsistenteSelezionato,
-                                hint: const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 12),
-                                  child: Text("Scegli oggetto esistente"),
-                                ),
-                                isExpanded: true,
-                                items: data.oggetti
-                                    .where((oggetto) => !_oggettoGiaInLista(oggetto.id))
-                                    .map((oggetto) {
-                                  return DropdownMenuItem(
-                                    value: oggetto,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                                      child: Text(oggetto.nome),
+                              child: Builder(
+                                builder: (context) {
+                                  final oggettiDisponibili = data.oggetti
+                                      .where((oggetto) => !_oggettoGiaInLista(oggetto.id))
+                                      .toList();
+                                  if (oggettoEsistenteSelezionato != null &&
+                                      !oggettiDisponibili.any((o) => o.id == oggettoEsistenteSelezionato!.id)) {
+                                    oggettoEsistenteSelezionato = null;
+                                  }
+                                  return DropdownButton<Oggetto>(
+                                    value: oggettoEsistenteSelezionato,
+                                    hint: const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 12),
+                                      child: Text("Scegli oggetto esistente"),
                                     ),
+                                    isExpanded: true,
+                                    items: oggettiDisponibili.map((oggetto) {
+                                      return DropdownMenuItem(
+                                        value: oggetto,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          child: Text(oggetto.nome),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (val) {
+                                      setState(() {
+                                        oggettoEsistenteSelezionato = val;
+                                      });
+                                    },
                                   );
-                                }).toList(),
-                                onChanged: (val) {
-                                  setState(() {
-                                    oggettoEsistenteSelezionato = val;
-                                  });
                                 },
                               ),
                             ),
@@ -144,7 +148,6 @@ class _OggettiPageState extends State<OggettiPage> {
                               ? null
                               : () async {
                                   final oggetto = oggettoEsistenteSelezionato!;
-                                  
                                   if (_oggettoGiaInLista(oggetto.id)) {
                                     _mostraMessaggio(
                                       'Oggetto già presente nella lista!',
@@ -152,7 +155,6 @@ class _OggettiPageState extends State<OggettiPage> {
                                     );
                                     return;
                                   }
-
                                   final relazione = ListaOggetto(
                                     listaId: widget.lista.nome,
                                     oggettoId: oggetto.id,
@@ -160,10 +162,8 @@ class _OggettiPageState extends State<OggettiPage> {
                                     data: DateTime.now(),
                                     IsCheck: 0,
                                   );
-
                                   await data.assegnaOggettoALista(relazione);
-                                  await _caricaOggettiInLista();
-                                  
+                                  await _caricaOggettiInLista();                  
                                   if (mounted) {
                                     setState(() {
                                       oggettoEsistenteSelezionato = null;
@@ -185,10 +185,7 @@ class _OggettiPageState extends State<OggettiPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Card per aggiungere nuovo oggetto
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -252,18 +249,14 @@ class _OggettiPageState extends State<OggettiPage> {
                           onPressed: () async {
                             final nome = nomeController.text.trim();
                             final prezzo = double.tryParse(prezzoController.text.trim()) ?? 0.0;
-
                             if (nome.isEmpty) {
                               _mostraMessaggio('Inserisci il nome dell\'oggetto!', isError: true);
                               return;
                             }
-
                             if (prezzo <= 0) {
                               _mostraMessaggio('Inserisci un prezzo valido!', isError: true);
                               return;
                             }
-
-                            // Controlla se esiste già un oggetto con lo stesso nome
                             final oggettoEsistente = data.oggetti.any((obj) => 
                               obj.nome.toLowerCase() == nome.toLowerCase());
                             
@@ -274,10 +267,8 @@ class _OggettiPageState extends State<OggettiPage> {
                               );
                               return;
                             }
-
                             final nuovoOggetto = Oggetto(nome: nome, prezzo: prezzo);
                             await data.aggiungiOggetto(nuovoOggetto);
-
                             final relazione = ListaOggetto(
                               listaId: widget.lista.nome,
                               oggettoId: nuovoOggetto.id,
@@ -285,13 +276,10 @@ class _OggettiPageState extends State<OggettiPage> {
                               data: DateTime.now(),
                               IsCheck: 0,
                             );
-
                             await data.assegnaOggettoALista(relazione);
                             await _caricaOggettiInLista();
-
                             nomeController.clear();
                             prezzoController.clear();
-                            
                             _mostraMessaggio('Nuovo oggetto creato e aggiunto!');
                             setState(() {});
                           },
@@ -309,10 +297,7 @@ class _OggettiPageState extends State<OggettiPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Header della lista
             Row(
               children: [
                 Icon(Icons.list, color: theme.primaryColor),
@@ -326,11 +311,8 @@ class _OggettiPageState extends State<OggettiPage> {
                   ),
                 ),
               ],
-            ),
-            
+            ), 
             const SizedBox(height: 12),
-
-            // Lista oggetti
             Expanded(
               child: FutureBuilder<List<ListaOggetto>>(
                 future: data.getOggettiDiLista(widget.lista.nome),
@@ -374,15 +356,12 @@ class _OggettiPageState extends State<OggettiPage> {
                       ),
                     );
                   }
-
                   final listaOggetti = snapshot.data!;
-
                   return ListView.builder(
                     itemCount: listaOggetti.length,
                     itemBuilder: (context, index) {
                       final entry = listaOggetti[index];
                       final quantita = entry.quantita;
-
                       return FutureBuilder<Oggetto>(
                         future: data.getOggetto(entry.oggettoId),
                         builder: (context, snapshot) {
@@ -403,11 +382,9 @@ class _OggettiPageState extends State<OggettiPage> {
                               ),
                             );
                           }
-
                           final oggetto = snapshot.data!;
                           final nome = oggetto.nome;
                           final prezzo = oggetto.prezzo;
-
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 4),
                             elevation: 2,
@@ -499,7 +476,7 @@ class _OggettiPageState extends State<OggettiPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => OggettoCategoriePage(oggetto: oggetto),
+                                    builder: (context) => AggiungiOggettoPage(oggettoDaModificare: oggetto),
                                   ),
                                 );
                               },
