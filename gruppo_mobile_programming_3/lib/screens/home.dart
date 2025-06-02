@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gruppo_mobile_programming_3/screens/oggetti_page.dart';
 import 'package:provider/provider.dart';
 import '../provider/appData_provider.dart';
 import '../model/lista_model.dart';
@@ -119,17 +120,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void modificaLista(Lista lista) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Modifica Lista'),
-        content: Text('Modifica della lista "${lista.nome}" in sviluppo...'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OggettiPage(lista: lista),
       ),
     );
   }
