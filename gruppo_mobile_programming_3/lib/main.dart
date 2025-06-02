@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gruppo_mobile_programming_3/database/database_helper.dart';
 import 'package:provider/provider.dart';
 import 'provider/appData_provider.dart';
 import 'screens/home.dart';
@@ -6,7 +7,7 @@ import 'screens/liste_view.dart';
 import 'screens/categorie.dart';
 import 'screens/analisi.dart';
 
-void main() {
+void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppDataProvider()..loadAllData(),

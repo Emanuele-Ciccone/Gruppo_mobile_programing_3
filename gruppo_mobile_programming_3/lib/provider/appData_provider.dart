@@ -131,4 +131,11 @@ class AppDataProvider extends ChangeNotifier {
     await _db.updateOggetto(oggetto, nome, prezzo);
     await loadAllData();  
   }
+
+  Future<void> aggiornaStatoOggetto(ListaOggetto lo, int check) async{
+  await _db.aggiornaStatoOggetto(lo, check);
+  await loadAllData();  
+  }
+  
+  
 }

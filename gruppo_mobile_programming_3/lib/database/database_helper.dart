@@ -58,6 +58,7 @@ class DatabaseHelper {
             OggettoId INTEGER,
             Quantita INTEGER NOT NULL,
             Data DATETIME NOT NULL,
+            IsCheck INTEGER NOT NULL,
             PRIMARY KEY (ListaId, OggettoId),
             FOREIGN KEY (ListaId) REFERENCES Lista(nome) ON DELETE CASCADE,
             FOREIGN KEY (OggettoId) REFERENCES Oggetto(Id) ON DELETE CASCADE
@@ -65,6 +66,10 @@ class DatabaseHelper {
         );
       },
       version: 1,
+      onOpen: (db) async {
+        await db.execute("PRAGMA foreign_keys = ON");
+      },
+
     );
   }
 
@@ -238,7 +243,10 @@ class DatabaseHelper {
        WHERE strftime('%Y-%m', ListaOggetto.Data) = strftime('%Y-%m', 'now');'''
   );
 
-  return result.isNotEmpty ? result.first['SpesaTotale'] as double : 0.0;
+  return result.isNotEmpty && result.first['SpesaTotale'] != null
+    ? (result.first['SpesaTotale'] as num).toDouble()
+    : 0.0;
+
 }
 
 Future<double> getMediaSettimanale() async {
@@ -250,7 +258,9 @@ Future<double> getMediaSettimanale() async {
       WHERE ListaOggetto.Data >= date('now', '-7 days');'''
   );
 
-  return result.isNotEmpty ? result.first['MediaSettimanale'] as double : 0.0;
+  return result.isNotEmpty && result.first['SpesaTotale'] != null
+    ? (result.first['SpesaTotale'] as num).toDouble()
+    : 0.0;
 }
 
 Future<List<Map<String, dynamic>>> getTotSpesaSettimana() async {
@@ -331,4 +341,20 @@ Future<List<Map<String, dynamic>>> getCategorie() async {
     whereArgs: [oggetto.id],
   );
   }
+
+
+  Future<void> aggiornaStatoOggetto(ListaOggetto lo, int check) async {
+  final db = await database;
+  await db.update(
+    'ListaOggetto',
+    {
+      'IsCheck': check,
+    },
+    where: 'oggettoId = ? and listaId = ?',
+    whereArgs: [lo.oggettoId, lo.listaId],
+  );
+  }
+
+  
+
 }
