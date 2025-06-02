@@ -33,7 +33,7 @@ class _OggettiPageState extends State<OggettiPage> {
     setState(() {});
   }
 
-  bool _oggettoGiaInLista(String oggettoId) {
+  bool _oggettoGiaInLista(int oggettoId) {
     return oggettiInLista.any((item) => item.oggettoId == oggettoId);
   }
 
@@ -119,7 +119,7 @@ class _OggettiPageState extends State<OggettiPage> {
                                 ),
                                 isExpanded: true,
                                 items: data.oggetti
-                                    .where((oggetto) => !_oggettoGiaInLista(oggetto.nome))
+                                    .where((oggetto) => !_oggettoGiaInLista(oggetto.id))
                                     .map((oggetto) {
                                   return DropdownMenuItem(
                                     value: oggetto,
@@ -145,7 +145,7 @@ class _OggettiPageState extends State<OggettiPage> {
                               : () async {
                                   final oggetto = oggettoEsistenteSelezionato!;
                                   
-                                  if (_oggettoGiaInLista(oggetto.nome)) {
+                                  if (_oggettoGiaInLista(oggetto.id)) {
                                     _mostraMessaggio(
                                       'Oggetto già presente nella lista!',
                                       isError: true,
