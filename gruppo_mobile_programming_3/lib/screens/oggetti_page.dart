@@ -18,15 +18,19 @@ class OggettiPage extends StatefulWidget {
 class _OggettiPageState extends State<OggettiPage> {
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController prezzoController = TextEditingController();
+  Oggetto? oggettoEsistenteSelezionato;
+
 
   @override
   void initState() {
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
     final data = Provider.of<AppDataProvider>(context);
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -40,7 +44,58 @@ class _OggettiPageState extends State<OggettiPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Prima riga: Dropdown + bottone per aggiungere oggetto esistente
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<Oggetto>(
+                    value: oggettoEsistenteSelezionato,
+                    hint: const Text("Scegli oggetto esistente"),
+                    isExpanded: true,
+                    items: data.oggetti.map((oggetto) {
+                      return DropdownMenuItem(
+                        value: oggetto,
+                        child: Text(oggetto.nome),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        oggettoEsistenteSelezionato = val;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    final oggetto = oggettoEsistenteSelezionato;
+                    if (oggetto != null) {
+                      final relazione = ListaOggetto(
+                        listaId: widget.lista.nome,
+                        oggettoId: oggetto.id,
+                        quantita: 1,
+                        data: DateTime.now(),
+                      );
+
+                      await data.assegnaOggettoALista(relazione);
+
+                      if (mounted) {
+                        setState(() {
+                          oggettoEsistenteSelezionato = null;
+                        });
+                      }
+                    }
+                  },
+                  child: const Text('Aggiungi'),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Seconda riga: campi testo + bottone per aggiungere nuovo oggetto
             Row(
               children: [
                 Expanded(
@@ -81,14 +136,17 @@ class _OggettiPageState extends State<OggettiPage> {
                       nomeController.clear();
                       prezzoController.clear();
 
-                      setState(() {}); // per aggiornare la UI
+                      setState(() {});
                     }
                   },
                   child: const Text('Aggiungi'),
                 ),
               ],
             ),
+
             const SizedBox(height: 20),
+
+            // Lista oggetti in Expanded per occupare tutto lo spazio rimasto
             Expanded(
               child: FutureBuilder<List<ListaOggetto>>(
                 future: data.getOggettiDiLista(widget.lista.nome),
@@ -172,6 +230,7 @@ class _OggettiPageState extends State<OggettiPage> {
           ],
         ),
       ),
+
     );
   }
 }

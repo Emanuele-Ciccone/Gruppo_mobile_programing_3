@@ -114,16 +114,73 @@ class _HomePageState extends State<HomePage> {
                                       (o) => o.id == lo.oggettoId,
                                       orElse: () => Oggetto(id: -1, nome: '', prezzo: 0),
                                     );
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                      child: Text(
-                                        '• ${oggetto.nome} x${lo.quantita} - €${(oggetto.prezzo ?? 0).toStringAsFixed(2)}',
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
+
+                                    // gestisci localmente lo stato del checkbox
+                                    bool isChecked = false;
+
+                                    return StatefulBuilder(
+                                      builder: (context, setLocalState) {
+                                        return Card(
+                                          margin: const EdgeInsets.symmetric(vertical: 6),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          elevation: 3,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        oggetto.nome,
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        'x${lo.quantita} - €${(oggetto.prezzo ?? 0).toStringAsFixed(2)}',
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.black54,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setLocalState(() {
+                                                      isChecked = !isChecked;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(color: isChecked ? Colors.green : Colors.grey, width: 2),
+                                                      color: isChecked ? Colors.green : Colors.transparent,
+                                                    ),
+                                                    padding: const EdgeInsets.all(4),
+                                                    child: Icon(
+                                                      Icons.check,
+                                                      size: 18,
+                                                      color: isChecked ? Colors.white : Colors.transparent,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     );
                                   },
                                 ),
                               );
+
+
                             },
                           ),
                           const SizedBox(height: 12),

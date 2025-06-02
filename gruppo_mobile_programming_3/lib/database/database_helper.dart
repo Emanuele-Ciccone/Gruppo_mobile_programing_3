@@ -256,15 +256,17 @@ Future<double> getMediaSettimanale() async {
 Future<List<Map<String, dynamic>>> getTotSpesaSettimana() async {
   final db = await database;
   var result = await db.rawQuery(
-    '''SELECT strftime('%Y - %W, ListaOggetto.Data) as Settimana, sum(Oggetto.prezzo * ListaOggetto.Quantita) AS SpesaSettimanale
+    '''SELECT strftime('%Y - %W', ListaOggetto.Data) as Settimana, 
+              SUM(Oggetto.prezzo * ListaOggetto.Quantita) AS SpesaSettimanale
        FROM ListaOggetto
        JOIN Oggetto ON ListaOggetto.OggettoId = Oggetto.Id
-      group by Settimana
-      order by Settimana DESC; '''
+       GROUP BY Settimana
+       ORDER BY Settimana DESC;'''
   );
 
   return result;
 }
+
 
 
 Future<List<Map<String, dynamic>>> getCategorie() async {
